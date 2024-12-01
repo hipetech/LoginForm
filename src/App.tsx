@@ -4,6 +4,7 @@ import { Home } from './screens/home.tsx';
 import { Login } from './screens/login.tsx';
 import { Profile } from './screens/profile.tsx';
 import { createStaticNavigation } from '@react-navigation/native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 export const NavigationStack = createStackNavigator({
   screens: {
@@ -17,5 +18,10 @@ export const NavigationStack = createStackNavigator({
 });
 
 const Navigation = createStaticNavigation(NavigationStack);
+const queryClient = new QueryClient();
 
-export const App = () => <Navigation />;
+export const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <Navigation />
+  </QueryClientProvider>
+);

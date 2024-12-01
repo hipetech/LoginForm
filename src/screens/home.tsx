@@ -13,7 +13,7 @@ export const Home = () => {
   const navigation = useNavigation();
 
   return (
-    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
         <Button onPress={() => navigation.navigate('Login')}>
           Go to login

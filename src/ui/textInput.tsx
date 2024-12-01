@@ -9,6 +9,8 @@ import {
   StyleProp,
   ViewStyle,
   TouchableHighlight,
+  NativeSyntheticEvent,
+  TextInputFocusEventData,
 } from 'react-native';
 import { Font } from '../styles/font.ts';
 import CloseIcon from '../../assets/icons/close.svg';
@@ -18,56 +20,58 @@ type TextInputProps = {
   placeholder?: string;
   focusedPlaceholder?: string;
   onChangeText?: (text: string) => void;
+  onClearButtonPress?: () => void;
   error?: string;
 } & RNTextInputProps;
 
 const AnimatedTextInput = Animated.createAnimatedComponent(RNTextInput);
 
 export const TextInput: React.FC<TextInputProps> = ({
+  value,
   containerStyle,
   placeholder = '',
   focusedPlaceholder,
   onChangeText,
+  onBlur,
+  onClearButtonPress,
   error,
   ...props
 }) => {
   const [isFocused, setIsFocused] = useState(false);
-  const [text, setText] = useState('');
-
   const [placeholderValue, setPlaceholderValue] = useState(placeholder);
 
-  const labelPosition = useRef(new Animated.Value(text ? 1 : 0)).current;
+  const labelPosition = useRef(new Animated.Value(value ? 1 : 0)).current;
 
   const animatedLabel = (toValue: number) => {
     Animated.timing(labelPosition, {
       toValue,
-      duration: 100,
+      duration: 200,
       useNativeDriver: false,
     }).start();
   };
 
   const handleFocus = () => {
     animatedLabel(1);
-    setTimeout(() => setIsFocused(true), 100);
+    setTimeout(() => setIsFocused(true), 200);
     if (focusedPlaceholder) {
       setPlaceholderValue(focusedPlaceholder);
     }
   };
 
-  const handleBlur = () => {
+  const handleBlur = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
     animatedLabel(0);
     setTimeout(() => {
       setIsFocused(false);
       if (focusedPlaceholder) {
         setPlaceholderValue(placeholder);
       }
-    }, 100);
+    }, 200);
+    onBlur?.(e);
   };
 
-  const handleTextChange = (value: string) => {
-    setText(value);
-    onChangeText?.(value);
-    animatedLabel(value ? 1 : isFocused ? 1 : 0);
+  const handleTextChange = (textValue: string) => {
+    onChangeText?.(textValue);
+    animatedLabel(textValue ? 1 : isFocused ? 1 : 0);
   };
 
   const labelStyle = {
@@ -105,7 +109,7 @@ export const TextInput: React.FC<TextInputProps> = ({
           isFocused && styles.focusedInnerContainerStyle,
           error && styles.innerContainerError,
         ]}>
-        {(isFocused || !text.length) && (
+        {(isFocused || !value?.length) && (
           <Animated.Text style={[styles.label, labelStyle]}>
             {placeholderValue}
           </Animated.Text>
@@ -118,12 +122,12 @@ export const TextInput: React.FC<TextInputProps> = ({
             onFocus={handleFocus}
             onBlur={handleBlur}
             onChangeText={handleTextChange}
-            value={text}
+            value={value}
             textAlignVertical="center"
           />
-          {!isFocused && text.length > 0 && (
+          {!isFocused && !error && value && (
             <TouchableHighlight
-              onPress={() => setText('')}
+              onPress={onClearButtonPress}
               style={styles.clearButton}
               underlayColor="#f9f9f9">
               <CloseIcon />

@@ -1,23 +1,34 @@
-import React from 'react';
-import {
-  StyleSheet,
-  View,
-  TouchableWithoutFeedback,
-  Keyboard,
-} from 'react-native';
-
+import React, { useEffect } from 'react';
+import { StyleSheet, View, TouchableWithoutFeedback, Keyboard, BackHandler, Platform } from 'react-native';
 import { Button } from '../ui/button.tsx';
 import { useNavigation } from '@react-navigation/native';
+import { isAccessTokenExpired } from '../helpers/isAccessTokenExpired.ts';
+import { getAccessToken } from '../helpers/getAccessToken.ts';
 
 export const Home = () => {
   const navigation = useNavigation();
 
+  const handleNavigation = async () => {
+    const accessToken = await getAccessToken();
+    const isExpired = accessToken && isAccessTokenExpired(accessToken);
+    navigation.navigate(!accessToken || isExpired ? 'Login' : 'Profile');
+  };
+
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      const backHandler = BackHandler.addEventListener(
+        'hardwareBackPress',
+        () => true,
+      );
+
+      return () => backHandler.remove();
+    }
+  }, []);
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
-        <Button onPress={() => navigation.navigate('Login')}>
-          Go to login
-        </Button>
+        <Button onPress={handleNavigation}>Go to login</Button>
       </View>
     </TouchableWithoutFeedback>
   );

@@ -1,10 +1,11 @@
-import { Credentials } from '../types/User.ts';
+import type { LoginCredentials } from '../types/LoginCredentials.ts';
+import { API_ENDPOINT } from '@env';
 
 export const userLogin = async (
-  { username, password }: Credentials,
+  { username, password }: LoginCredentials,
   expiredInMins = 5,
 ) => {
-  return fetch('https://dummyjson.com/auth/login', {
+  return fetch(`${API_ENDPOINT}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

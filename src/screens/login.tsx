@@ -16,6 +16,8 @@ import { formSchema } from '../schemas/formSchema.ts';
 
 import type { User } from '../types/User.ts';
 import type { LoginCredentials } from '../types/LoginCredentials.ts';
+import { useNavigation } from '@react-navigation/native';
+import { setAccessToken } from '../helpers/setAccessToken.ts';
 
 export const Login = () => {
   const { control, handleSubmit, watch, resetField, setValue } = useForm({
@@ -27,14 +29,17 @@ export const Login = () => {
     setValue(fieldName, '');
   };
 
+  const navigation = useNavigation();
+
   const { mutate, isPending, error } = useMutation<
     User,
     Error,
     LoginCredentials
   >({
     mutationFn: userLogin,
-    onSuccess: user => {
-      console.log(user);
+    onSuccess: async (user) => {
+      await setAccessToken(user.accessToken);
+      navigation.navigate('Profile');
     },
   });
 

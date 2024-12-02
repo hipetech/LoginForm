@@ -8,7 +8,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 export const NavigationStack = createStackNavigator({
   screens: {
-    Home,
+    Home: {
+      screen: Home,
+      options: {
+        gestureEnabled: false,
+      },
+    },
     Login,
     Profile,
   },
@@ -18,7 +23,7 @@ export const NavigationStack = createStackNavigator({
 });
 
 const Navigation = createStaticNavigation(NavigationStack);
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 
 export const App = () => (
   <QueryClientProvider client={queryClient}>
